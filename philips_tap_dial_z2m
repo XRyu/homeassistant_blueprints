@@ -1,6 +1,6 @@
 blueprint:
   name: Philips Tap Dial Switch - Zigbee2MQTT
-  description: 'Control lights with a Philips Hue Tap Switch.
+  description: 'Control lights with a Philips Hue Tap Dial Switch.
     Use the four buttons to control up to four light(s) with an on/off toggle. The dial can be used to dim the most recently used light.
     '
   domain: automation
@@ -49,7 +49,7 @@ blueprint:
     current_light:
       name: (OPTIONAL) Current Light
       description:
-        'Text helper to track the current light to dim. Set for the dimmer controls to change which light they are controlling according to the last one turned on.'
+        'Text helper to track the current light to dim. Set for the dimmer controls to change which light they are controlling according to the last one turned on. Create a new one if you haven't already.'
       default:
       selector:
         entity:
