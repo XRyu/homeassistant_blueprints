@@ -7,7 +7,10 @@ blueprint:
   input:
     remote:
       name: Philips Hue Tap Switch - Action
+      description: Select the Action Entity of your Device
       selector:
+        device:
+          model: "Hue Tap dial switch"
         entity:
           domain: sensor
     first_light:
@@ -29,19 +32,22 @@ blueprint:
       description: The light(s) to control with third button
       selector:
         target:
-          entity: {}
+          entity: 
+            domain: light
     forth_light:
       name: (OPTIONAL) Forth Light
       description: The light(s) to control with forth button
       selector:
         target:
-          entity: {}
+          entity: 
+            domain: light
     default_light:
       name: Default Light
       description: The light(s) to control when no current_light is set 
       selector:
         target:
-          entity: {}
+          entity: 
+            domain: light
     current_light:
       name: (OPTIONAL) Current Light
       description:
