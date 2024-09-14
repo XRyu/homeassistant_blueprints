@@ -1,0 +1,223 @@
+blueprint:
+  name: Philips Tap Dial Switch - Zigbee2MQTT
+  description: 'Control lights with a Philips Hue Tap Switch.
+    Use the four buttons to control up to four light(s) with an on/off toggle. The dial can be used to dim the most recently used light.
+    '
+  domain: automation
+  input:
+    remote:
+      name: Philips Hue Tap Switch - Action
+      selector:
+        entity:
+          domain: sensor
+    first_light:
+      name: First Light
+      description: The light(s) to control with first button
+      selector:
+        target:
+          entity: 
+           domain: light
+    second_light:
+      name: (OPTIONAL) Second Light
+      description: The light(s) to control with second button
+      selector:
+        target:
+          entity: 
+            domain: light
+    third_light:
+      name: (OPTIONAL) Third Light
+      description: The light(s) to control with third button
+      selector:
+        target:
+          entity: {}
+    forth_light:
+      name: (OPTIONAL) Forth Light
+      description: The light(s) to control with forth button
+      selector:
+        target:
+          entity: {}
+    default_light:
+      name: Default Light
+      description: The light(s) to control when no current_light is set 
+      selector:
+        target:
+          entity: {}
+    current_light:
+      name: (OPTIONAL) Current Light
+      description:
+        'Text helper to track the current light to dim. Set for the dimmer controls to change which light they are controlling according to the last one turned on.'
+      default:
+      selector:
+        entity:
+          domain: input_text
+    dim_steps:
+      name: Dimming Steps
+      description: Number of Percentage-Steps for the dimming. By this factor the lights brightness gets increased / decreased.
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+  source_url: https://github.com/XRyu/blueprints/blob/main/philips_zigbee_dial_z2m.yaml
+mode: restart
+max_exceeded: silent
+variables:
+  first_light: !input "first_light"
+  second_light: !input "second_light"
+  third_light: !input "third_light"
+  forth_light: !input "forth_light"
+  default_light: !input "default_light"
+  current_light: !input "current_light"
+  dim_steps: !input "dim_steps"
+  lights:
+    first_light: !input "first_light"
+    second_light: !input "second_light"
+    third_light: !input "third_light"
+    forth_light: !input "forth_light"
+    default_light: !input "default_light"
+trigger:
+  - platform: state
+    entity_id:
+      - !input "remote"
+    to: button_1_press
+  - platform: state
+    entity_id:
+      - !input "remote"
+    to: button_2_press
+  - platform: state
+    entity_id:
+      - !input "remote"
+    to: button_3_press
+  - platform: state
+    entity_id:
+      - !input "remote"
+    to: button_4_press
+  - platform: state
+    entity_id:
+      - !input "remote"
+    to: brightness_step_up
+  - platform: state
+    entity_id:
+      - !input "remote"
+    to: brightness_step_down
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input "remote"
+            state: button_1_press
+        sequence:
+          - action: homeassistant.toggle
+            target: !input "first_light"
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ current_light  != none }}"
+                sequence:
+                  - action: input_text.set_value
+                    data:
+                      value: first_light
+                    target:
+                      entity_id: !input "current_light"
+      - conditions:
+          - condition: state
+            entity_id: !input "remote"
+            state: button_2_press
+        sequence:
+          - action: homeassistant.toggle
+            target: !input "second_light"
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ current_light  != none }}"
+                sequence:
+                  - action: input_text.set_value
+                    data:
+                      value: second_light
+                    target:
+                      entity_id: !input "current_light"
+      - conditions:
+          - condition: state
+            entity_id: !input "remote"
+            state: button_3_press
+        sequence:
+          - action: homeassistant.toggle
+            target: !input "third_light"
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ current_light  != none }}"
+                sequence:
+                  - action: input_text.set_value
+                    data:
+                      value: third_light
+                    target:
+                      entity_id: !input "current_light"
+      - conditions:
+          - condition: state
+            entity_id: !input "remote"
+            state: button_4_press
+        sequence:
+          - action: homeassistant.toggle
+            target: !input "forth_light"
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ current_light  != none }}"
+                sequence:
+                  - action: input_text.set_value
+                    data:
+                      value: forth_light
+                    target:
+                      entity_id: !input "current_light"
+      - conditions:
+          - condition: state
+            entity_id: !input "remote"
+            state: brightness_step_up
+            enabled: true
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input "remote"
+                    state: brightness_step_up
+                  - condition: template
+                    value_template: "{{ current_light  != none }}"
+                sequence:
+                  - action: light.turn_on
+                    data:
+                      transition: 1
+                      brightness_step_pct: "{{ dim_steps }}"
+                    target: "{{ lights[states(current_light)] }}"
+            default:
+              - action: light.turn_on
+                data:
+                  transition: 1
+                  brightness_step_pct: "{{ dim_steps }}"
+                target: !input "default_light"
+      - conditions:
+          - condition: state
+            entity_id: !input "remote"
+            state: brightness_step_down
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input "remote"
+                    state: brightness_step_down
+                  - condition: template
+                    value_template: "{{ current_light  != none }}"
+                sequence:
+                  - action: light.turn_on
+                    data:
+                      transition: 1
+                      brightness_step_pct: "{{ -dim_steps }}"
+                    target: "{{ lights[states(current_light)] }}"
+            default:
+              - action: light.turn_on
+                data:
+                  transition: 1
+                  brightness_step_pct: "{{ -dim_steps }}"
+                target: !input "default_light"
