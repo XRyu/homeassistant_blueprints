@@ -9,8 +9,6 @@ blueprint:
       name: Philips Hue Tap Switch - Action
       description: Select the Action Entity of your Device
       selector:
-        device:
-          model: "Hue Tap dial switch"
         entity:
           domain: sensor
     first_light:
