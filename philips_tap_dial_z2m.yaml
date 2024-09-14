@@ -63,7 +63,7 @@ blueprint:
           min: 1
           max: 10
           step: 1
-  source_url: https://github.com/XRyu/homeassistant_blueprints/blob/main/philips_tap_dial_z2m
+  source_url: https://github.com/XRyu/homeassistant_blueprints/blob/main/philips_tap_dial_z2m.yaml
 mode: restart
 max_exceeded: silent
 variables:
