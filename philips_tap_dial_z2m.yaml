@@ -50,7 +50,6 @@ blueprint:
       name: (OPTIONAL) Current Light
       description:
         'Text helper to track the current light to dim. Set for the dimmer controls to change which light they are controlling according to the last one turned on. Create a new one if you haven't already.'
-      default:
       selector:
         entity:
           domain: input_text
